@@ -18,3 +18,10 @@ const Gameboard = (() => {
 
     return { getBoard, setCell, resetBoard };
 })();
+
+// 2. Player Factory Function
+const Player = (name, marker) => {
+    return {name, marker };
+};
+
+// 
