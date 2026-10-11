@@ -77,9 +77,68 @@ const GameController = (() => {
                 DisplayController.setMessage("It's a tie! 🤝");
                 // Handle tie logic
             } else {
-                currentPlayerIndex = (currentPlayerIndex + 1) % 2;
+                currentPlayerIndex = currentPlayerIndex === 0 ? 1 : 0;
+                DisplayController.setMessage(`${getCurrentPlayer().name}'s turn (${getCurrentPlayer().marker})`);
             }
+
+            DisplayController.renderBoard();
         };
 
     return { startGame, getCurrentPlayer, playTurn };
+})();
+
+// 4. Display Controller Module (IIFE)
+const DisplayController = (() => {
+  const setupScreen = document.getElementById('setup-screen');
+  const gameScreen = document.getElementById('game-screen');
+  const playerForm = document.getElementById('player-form');
+  const boardContainer = document.getElementById('board-container');
+  const statusText = document.getElementById('status-text');
+  const restartBtn = document.getElementById('restart-btn');
+
+  const setMessage = (msg) => {
+    statusText.textContent = msg;
+  };
+
+  const renderBoard = () => {
+    boardContainer.innerHTML = '';
+    const board = Gameboard.getBoard();
+
+    board.forEach((cell, index) => {
+      const cellElement = document.createElement('div');
+      cellElement.classList.add('cell');
+      cellElement.dataset.index = index;
+      cellElement.textContent = cell;
+
+      if (cell === 'X') cellElement.classList.add('x-marker');
+      if (cell === 'O') cellElement.classList.add('o-marker');
+
+      cellElement.addEventListener('click', () => {
+        GameController.playTurn(index);
+      });
+
+      boardContainer.appendChild(cellElement);
+    });
+  };
+
+  // Event Listeners
+  playerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const p1 = document.getElementById('player1-name').value;
+    const p2 = document.getElementById('player2-name').value;
+
+    GameController.startGame(p1, p2);
+
+    setupScreen.classList.add('hidden');
+    gameScreen.classList.remove('hidden');
+
+    setMessage(`${GameController.getCurrentPlayer().name}'s turn (X)`);
+    renderBoard();
+  });
+
+  restartBtn.addEventListener('click', () => {
+    GameController.restartGame();
+  });
+
+  return { renderBoard, setMessage };
 })();
